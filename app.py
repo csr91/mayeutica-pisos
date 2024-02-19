@@ -1,5 +1,4 @@
-from flask import Flask, jsonify
-
+from flask import Flask, jsonify, render_template
 import pyodbc
 import gspread
 from google.oauth2.service_account import Credentials
@@ -17,7 +16,7 @@ worksheet = spreadsheet.worksheet("SP_InformacionPresupuestos")
 
 @app.route('/')
 def index():
-    return "Hola"
+    return render_template('index.html')
 
 @app.route('/actualizar-datos')
 def actualizar_datos():
