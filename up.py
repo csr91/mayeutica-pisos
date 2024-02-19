@@ -15,6 +15,10 @@ client = gspread.authorize(creds)
 spreadsheet = client.open_by_url("https://docs.google.com/spreadsheets/d/1HEJjq5NzeahwSyc47cmC0cJWd8wsQV9xXIKGP2j12t0/edit#gid=0")
 worksheet = spreadsheet.worksheet("SP_InformacionPresupuestos")
 
+@app.route('/')
+def index():
+    return "Hola"
+
 @app.route('/actualizar-datos')
 def actualizar_datos():
     try:
