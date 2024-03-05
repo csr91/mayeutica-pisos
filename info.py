@@ -1,3 +1,4 @@
+import time
 import pyodbc
 from datetime import datetime, timedelta
 import gspread
@@ -38,31 +39,32 @@ results_presupuestos_pendientes = cursor.fetchall()
 
 # Abrir la hoja de cálculo
 spreadsheet = client.open_by_key('1HEJjq5NzeahwSyc47cmC0cJWd8wsQV9xXIKGP2j12t0')
+
+# Almacenar todos los resultados y nombres de columnas en listas separadas
+all_results = [results_informacion_presupuestos, results_presupuestos_pendientes]
+all_column_names = [column_names, column_names]
+
+# Obtener las hojas de cálculo correspondientes
 worksheet_informacion_presupuestos = spreadsheet.worksheet('SP_InformacionPresupuestos')
-
-# Borrar el contenido actual de la hoja de cálculo de SP_InformacionPresupuestos
-worksheet_informacion_presupuestos.clear()
-
-# Escribir los nombres de las columnas de la primera consulta en la primera fila de SP_InformacionPresupuestos
-worksheet_informacion_presupuestos.update(range_name='A1', values=[column_names])
-
-# Escribir los resultados de la primera consulta en la hoja de cálculo de SP_InformacionPresupuestos
-for i, row in enumerate(results_informacion_presupuestos):
-    row_list = [str(item) for item in row]
-    worksheet_informacion_presupuestos.update(range_name=f'A{i+2}', values=[row_list])
-
-# Abrir la hoja de cálculo de SP_PresupuestosPendientes
 worksheet_presupuestos_pendientes = spreadsheet.worksheet('SP_PresupuestosPendientes')
+worksheets = [worksheet_informacion_presupuestos, worksheet_presupuestos_pendientes]
 
-# Borrar el contenido actual de la hoja de cálculo de SP_PresupuestosPendientes
-worksheet_presupuestos_pendientes.clear()
+# Iterar sobre las consultas y pegar los resultados en las hojas de cálculo
+for i, (results, column_names) in enumerate(zip(all_results, all_column_names)):
+    worksheet = worksheets[i]
 
-# Escribir los nombres de las columnas de la segunda consulta en la primera fila de SP_PresupuestosPendientes
-worksheet_presupuestos_pendientes.update(range_name='A1', values=[column_names])
+    # Borrar el contenido actual de la hoja de cálculo
+    worksheet.clear()
 
-# Escribir los resultados de la segunda consulta en la hoja de cálculo de SP_PresupuestosPendientes
-for i, row in enumerate(results_presupuestos_pendientes):
-    row_list = [str(item) for item in row]
-    worksheet_presupuestos_pendientes.update(range_name=f'A{i+2}', values=[row_list])
+    # Pegar los nombres de las columnas en la primera fila
+    worksheet.update(range_name='A1', values=[column_names])
+
+    # Construir una lista de listas para todos los resultados
+    values = [[str(item) for item in row] for row in results]
+
+    # Pegar todos los resultados en el sheet de una sola vez
+    worksheet.update(range_name=f'A2', values=values)
+
+    time.sleep(1)  # Espera un segundo entre cada hoja de cálculo
 
 print("Resultados actualizados en Google Sheets.")
